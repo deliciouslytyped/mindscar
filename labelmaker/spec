@@ -1,0 +1,66 @@
+stateful sheets:
+  state db
+    each sheet has an id printed on to it the first time, this is how you keep track of what label areas are already occupied
+    how to detect sheet id?
+      prompt/cli and have an option for use last sheet
+
+    each sheet has a label schema describing the layout
+
+  label types
+    id label
+      human readable id
+        .R#####-
+        the dash is so you can see that the human readable part terminated properly, the . is a kludge spacer so its not on the border
+        five digits should be enough for everyone
+        R is the series (last one was D for documnt, those are done manually and not a global namespace), r is for..i forgot
+        same id should go in the data matrix, but with some kind of url schema to facilitate app lookups and crap?
+      data matrix code
+        with same id but only the numbers/schema
+    sha label
+      .SHA256-
+      a label for the secure hash of the scanned file
+      the format is the lower case hex encoded version (todo does it fit?)
+
+protocol
+  principles:
+    digital plus paper backup
+    mistakes are made, maintain history
+
+  there are three databases, the label state database, the blob store index, and the digital storage provenance db
+
+  print id labels, update label db
+  place an id label on the transparency
+  scan the document, place in blob store under corresponding id
+  update blob store index
+  create hash label, update label db
+  place hash label on the transparency
+  when a series if full, place series start and end on binder, print blob index for binder, and store with binder, along with two usb drives of different models 
+    (one is stored in a separate location) containing scan backups (todo research long term archival) and index backups, with zfs filesystems (read only datasets? - create a snapshot)
+  update the provenance db and set reminders to check data integrity in x years
+
+ 
+
+  if an id needs to be split, mark as obsolete but dont damage or hide the old codes
+  labels go in the top left
+  labels are obsoleted top down (add new label below old one)
+  a new zfs snapshot is created on the digital storage and synced to the second drive
+  the catalog is marked to point to the new id
+
+  todo: modify protocol for syncing secondary drives from laptop monrepo?
+
+
+software dev reliability
+  version update protocol
+
+
+=================
+ask to enter sheet number or use last page,
+  error if sheet known full
+
+=================
+do like books, do like contracts
+put labels on the outer corner
+=================
+todo;
+data structures (namedtuple)
+print test page
