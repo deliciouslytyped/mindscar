@@ -91,8 +91,8 @@ for i in groups:
     ])
 
 layouts = [
-    layout.Max(),
-    layout.Stack(num_stacks=2),
+    #layout.Max(),
+    #layout.Stack(num_stacks=2),
     # Try more layouts by unleashing below layouts.
     # layout.Bsp(),
     # layout.Columns(),

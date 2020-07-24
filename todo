@@ -3,3 +3,8 @@ generate working directories
 better qtile layouting
 make nix scripts more complete
 update upstream qtile
+
+scanflow
+  basic proving of process
+  fix and automatize committing
+  figure out layout refresh

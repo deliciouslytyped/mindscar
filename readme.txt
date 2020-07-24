@@ -24,3 +24,13 @@ scanflow:
     feh is restarted any time i deemed an update necessary, the refresh feature doesnt work with thumbnails (yet)?
     im open to suggestions for a component that can provide better interactive thumbnail and browsing capability, for QC of the scanned materials while scanning.
     extra points for integrated cropping capability? for interesting features, explore scantailor and scantailor-advanced (both are for scanning books)
+
+
+principles:
+  modifiable and fixable with standard tools
+    reasons:
+      my tooling will always ve lacking due to dev time
+  high flexibility and capability data structures
+    git, git-annex
+    libreoffice calc for document db? (coming up with own sql stuff too tedious and restricted without a lot of work)
+  crash friendly, should be able to close at any point

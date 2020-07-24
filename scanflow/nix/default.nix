@@ -26,25 +26,7 @@ in
       sqlitebrowser
       xorg.xorgserver #Xephyr
       konsole
-      i3
-#      qtile
-      (qtile.overridePythonAttrs (old: {
-        src = ;#TODO
-        patches = [];
-        pythonPath = old.pythonPath ++ [ python37Packages.setuptools_scm ];
-
-        postPatch = ''
-          substituteInPlace libqtile/core/manager.py --subst-var-by out $out
-          substituteInPlace libqtile/pangocffi.py --subst-var-by glib ${glib.out}
-          substituteInPlace libqtile/pangocffi.py --subst-var-by pango ${pango.out}
-          substituteInPlace libqtile/backend/x11/xcursors.py --subst-var-by xcb-cursor ${xorg.xcbutilcursor.out}
-          '';
-
-
-#        src = pkgs.fetchFromGitHub { owner = "qtile"; repo = "qtile"; rev = "v0.16.0"; sha256 = "1klv1k9847nyx71sfrhqyl1k51k2w8phqnp2bns4dvbqii7q125l"; };
-#        patches = [ ./0001.patch ./0002.patch ./0003.patch ];
-        }))
-
+      i3 (pkgs.callPackage ( /. + (pkgs.lib.fileContents ./qtilepath)) {})
       gitAndTools.git-annex gitAndTools.gitFull
       ];
     };

@@ -1,3 +1,6 @@
 .cache/
 .local/
 .sane/
+.dbus/
+__pycache__
+.config/konsolerc
