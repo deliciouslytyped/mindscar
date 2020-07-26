@@ -13,7 +13,8 @@ def pushd(new_dir):
   try:
     yield
   except Exception as e:
-    logger.debug(e)
-  finally: #TODO swallows exception?
+    chdir(previous_dir)
+    raise e
+  else: #TODO swallows exception?
     chdir(previous_dir)
 

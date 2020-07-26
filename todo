@@ -8,3 +8,18 @@ scanflow
   basic proving of process
   fix and automatize committing
   figure out layout refresh
+
+  finish fixing
+    feh
+    repo
+    event handler
+    scanner
+    multipőrocess_main
+  figure out how to test
+  fix cli printing conflicts
+  context manager for commands that depend on being in a doc, that checks if you are in a doc
+  feh isnt exiting on repl exit
+  feh doesnt indicate if there are more thumbnails off screen
+
+
+

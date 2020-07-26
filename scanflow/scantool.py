@@ -6,63 +6,52 @@ import sys
 import time
 
 import subprocess as s
-import multiprocessing as mp
-import threading as th
 
 import inspect
-from os.path import join, dirname, abspath
+from os.path import join, dirname, abspath, realpath
 currentdir = dirname(abspath(inspect.getfile(inspect.currentframe())))
 sys.path.append(join(currentdir, "../")) #TODO meh
 from common.supervisor import run
+import common.multiprocess_main as multiprocess_main
 
-def kill_self(qtile_dead, xeph_dead, global_exit_q, kill_xeph):
-  global_exit_q.put(0)
+class App(multiprocess_main.App):
+  def send_kill_signals(self): #TODO partial failure on dict keys #TODO race condition somewhere? can still kill xephyr first
+    self.l.debug("trying to close qtile")
+    while self.procs["qtile"].dead.empty():
+      s.run("qtile-cmd -o cmd -f shutdown".split())
+      time.sleep(0.1)
+    self.l.debug("waiting arbitrary time for qtile to finish closing")
+    time.sleep(2)
+    self.l.debug("trying to close xeph")
+    while self.procs["xeph"].dead.empty():
+      self.procs["xeph"].kill.put(0)
+      time.sleep(0.1)
 
-  print("trying to close qtile")
-  while qtile_dead.empty():
-    s.run("qtile-cmd -o cmd -f shutdown".split())
-    time.sleep(0.1)
-  print("waiting arbitrary time for qtile to finish closing")
-  time.sleep(2)
-  print("trying to close xeph")
-  while xeph_dead.empty():
-    kill_xeph.put(0)
-    time.sleep(0.1)
-  sys.exit(0)
-
-if __name__ == "__main__":
-  try:
-    mp.set_start_method("spawn")
-    global_exit_q = mp.Queue()
-
+  def main(self):
     innerdisplay = ":1"
 
-    kill_xeph, xeph_dead = run("Xephyr %s -screen 1600x900" % innerdisplay)
+    self.procs["xeph"] = run("Xephyr %s -screen 1600x900" % innerdisplay)
     time.sleep(1) #TODO no actual way to check if a process has started i think - and besides what does that even mean, ready?
 
+    #TODO separate repo and home?
     if "repo" not in os.listdir(): #todo what if file
       try:
         os.mkdir("repo")
       except:
-        print("could not create repo root")
+        self.l.debug("could not create repo root")
         kill_self(qtile_dead, xeph_dead, global_exit_q, kill_xeph)
       s.run("cp gitignore ./repo/.gitignore", shell=True)
       s.run("cp qtile.py ./repo", shell=True)
 
-    home = os.path.realpath(os.path.join(os.getcwd(), "./repo"))
+    home = realpath(join(os.getcwd(), "./repo"))
     os.chdir(home)
     os.environ["HOME"] = home
     os.environ["DISPLAY"] = innerdisplay
-    _, qtile_dead, = run("qtile -c %s" % os.path.realpath(os.path.join(os.getcwd(), "./qtile.py")))
+    self.procs["qtile"] = run("qtile -c %s" % realpath(join(os.getcwd(), "./qtile.py")))
     time.sleep(1) #TODO no actual way to check if a process has started i think - and besides what does that even mean, ready?
-
 
     #TODO GC issue? if i dont assign the retval things break
-    blah1, blah2 = run(["bash", "-c", """konsole -e bash --init-file <(echo "python3 ../src/lib.py")"""], nosplit=True)
+    self.procs["konsole"] = run(["bash", "-c", """konsole -e bash --init-file <(echo "python3 ../src/lib.py")"""], nosplit=True) #TODO is launcher that closes immediately
     time.sleep(1) #TODO no actual way to check if a process has started i think - and besides what does that even mean, ready?
 
-    input("press enter to exit")
-    kill_self(qtile_dead, xeph_dead, global_exit_q, kill_xeph) #maybe i should use globals or a mutable reg or something so partial failure means still killable?
-  except KeyboardInterrupt:
-    kill_self(qtile_dead, xeph_dead, global_exit_q, kill_xeph)
-
+App(__name__ == "__main__", prevent_falling_off=True).run()

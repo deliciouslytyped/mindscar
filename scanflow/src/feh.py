@@ -1,8 +1,14 @@
+#TODO make this consistent with the rest of the arch
 from threading import Thread
+import multiprocessing as mp
+
 import subprocess
 import time
 
 from collections import namedtuple
+
+import logging
+logger = logging.getLogger()
 
 FehState = namedtuple("FehState", ["pyproc", "killqueue", "thisdir"])
 
@@ -17,10 +23,22 @@ def feh(queue, target=None): #if target is set load an image otherwise thumbnail
     logger.debug("feh killing self") #sometimes it doesnt work?? racy??
     p.kill()
   Thread(target=killme, daemon=True).start()
+  #TODO use a daemon with detection instead or something, but really shoudl jsut write qtile mod
+  def relayout():
+    #attempt to relayout qtile
+    time.sleep(1.5)
+    print("wtSDAFASDFSDFASDFf")
+    subprocess.run(["qtile-cmd", "-o", "layout", "-f", "eval", "--args", 'self.relative_sizes = [0.1, 0.9]'])
+  Thread(target=relayout, daemon=True).start()
   p.communicate()
 
-  #attempt to relayout qtile
-  time.sleep(0.1)
-  subprocess.run([" qtile-cmd", "-o", "layout", "-f", "eval", "--args", 'self.relative_sizes = [0.1, 0.9]'])
 
+
+
+def startfeh(thisdir, target):
+  queue = mp.Queue()
+  p = mp.Process(target=feh, args=(queue,target), daemon=True)
+  p.start()
+  s = FehState(pyproc=p, killqueue=queue, thisdir=thisdir)
+  return s
 

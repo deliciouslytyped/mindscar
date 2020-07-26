@@ -1,3 +1,4 @@
+#TODO how to deal with kill queues and daemonization?
 import textwrap #TODO these are useless rn because of inherited descriptors
 
 import subprocess as s
@@ -7,6 +8,9 @@ import threading as th
 import signal
 import os
 
+from collections import namedtuple
+
+ProcStruct = namedtuple("ProcStruct", ["kill", "dead"])
 
 def printret(command, stdout, stderr):
   print("command: %s" % command)
@@ -38,5 +42,5 @@ def run(command, nosplit=False, *args, **kwargs):
   print("attempting to start %s" % command)
   mp.Process(target=supervisor, args=(command, kill_q, dead_q, args, kwargs, dict(os.environ), nosplit), name="run-%s" % (command[0] if nosplit else command.split()[0]), daemon=True).start()
 
-  return kill_q, dead_q
+  return ProcStruct(kill_q, dead_q)
 
